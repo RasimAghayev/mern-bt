@@ -105,12 +105,12 @@ const ProfileSchema = new mongoose.Schema({
     instagram: {
       type: String,
     },
-    ok: {
-      type: String,
-    },
-    vk: {
-      type: String,
-    },
+    // ok: {
+    //   type: String,
+    // },
+    // vk: {
+    //   type: String,
+    // },
   },
   created_at: {
     type: Date,
