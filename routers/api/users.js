@@ -63,7 +63,7 @@ router.post(
       // Return jsonwebtoken
       const payload = {
         user: {
-          id: user._id,
+          id: user.id,
         },
       };
 
@@ -73,13 +73,12 @@ router.post(
         { expiresIn: 360000 },
         (err, token) => {
           if (err) throw err;
-          res.json({ token });
+          return res.json({ token });
         }
       );
     } catch (err) {
       console.log(err.message);
-      res.status(500).json({ errors: [{ msg: 'Server error' }] });
-      return;
+      return res.status(500).json({ errors: [{ msg: 'Server error' }] });
     }
   }
 );
