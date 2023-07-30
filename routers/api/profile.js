@@ -13,7 +13,7 @@ const router = express.Router();
 
 // @router  GET     api/profile/me
 // @desc    Get current users profile
-// @access  Public
+// @access  Private
 
 router.get('/me', auth, async (req, res) => {
   try {
@@ -33,7 +33,7 @@ router.get('/me', auth, async (req, res) => {
 
 // @router  POST     api/profile
 // @desc    Register new user
-// @access  Public
+// @access  Private
 
 router.post(
   '/',
@@ -116,4 +116,42 @@ router.post(
     }
   }
 );
+
+// @router  GET     api/profile
+// @desc    Get all users profile
+// @access  Public
+
+router.get('/', async (req, res) => {
+  try {
+    const profiles = await Profile.find().populate('user', ['name', 'avatar']);
+    if (!profiles) return res.status(400).json({ msg: 'There is no profiles' });
+
+    res.json(profiles);
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
+// @router  GET     api/profile/user/:user_id
+// @desc    Get profile by user ID
+// @access  Public
+
+router.get('/user/:user_id', async (req, res) => {
+  try {
+    const profile = await Profile.findOne({
+      user: req.params.user_id,
+    }).populate('user', ['name', 'avatar']);
+    if (!profile)
+      return res.status(400).json({ msg: 'There is no profile this user' });
+
+    res.json(profile);
+  } catch (err) {
+    console.log(err.message);
+    if (err.kind == 'ObjectId') {
+      return res.status(400).json({ msg: 'Invalid User Id' });
+    }
+    res.status(500).send('Server error');
+  }
+});
 module.exports = router;
