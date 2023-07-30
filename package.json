@@ -1,0 +1,34 @@
+{
+  "name": "mean-bt",
+  "version": "1.0.0",
+  "description": "Brad Traversy - MERN Stack Front To Back. Build and deploy a social network with Node.js, Express, React, Redux & MongoDB. ",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server",
+    "server": "nodemon server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "MERN",
+    "Rasim",
+    "Aghayev",
+    "React",
+    "Node"
+  ],
+  "author": "Rasim Aghayev",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "config": "^3.3.9",
+    "express": "^4.18.2",
+    "express-validator": "^7.0.1",
+    "gravatar": "^1.8.2",
+    "jsonwebtoken": "^9.0.1",
+    "mongoose": "^7.4.1",
+    "request": "^2.88.2"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "nodemon": "^3.0.1"
+  }
+}
