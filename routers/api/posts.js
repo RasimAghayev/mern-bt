@@ -90,8 +90,8 @@ async (req, res) => {
     }
 });
 
-// @router  DEELETE    api/posts/:id
-// @desc    Delte a post
+// @router  DELETE    api/posts/:id
+// @desc    Delete a post
 // @access  Private
 
 router.delete('/:id', 
@@ -109,7 +109,7 @@ async (req, res) => {
         }
         await post.remove()
         res.json({msg: 'Post removed.'})
-        
+
     } catch (err) {
         console.error(err.message);
 
@@ -121,5 +121,79 @@ async (req, res) => {
 });
 
 
+// @router  PUT    api/posts/like/:id
+// @desc    Like a post
+// @access  Private
+
+router.delete('/like/:id', 
+auth,
+async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id)
+
+        if(!post){
+            return res.status(404).json({msg:'Post not found'})
+        }
+
+        if(
+            post.likes.filter(
+                like=>like.user.toString() === req.user.id
+            ).length>0
+        ){
+            return res.status(400).json({msg:'Post already liked.'})
+        }
+
+        post.likes.unshift({ user: req.user.id})
+        await post.save();
+
+        res.json(post.likes)
+        
+    } catch (err) {
+        console.error(err.message);
+
+        if(err.kind==='ObjectId'){
+            return res.status(404).json({msg:'Post not found'})
+        }
+        res.status(500).send('Server error.')
+    }
+});
+
+// @router  PUT    api/posts/unlike/:id
+// @desc    Unlike a post
+// @access  Private
+
+router.delete('/unlike/:id', 
+auth,
+async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id)
+
+        if(!post){
+            return res.status(404).json({msg:'Post not found'})
+        }
+
+        if(
+            post.likes.filter(
+                like=>like.user.toString() === req.user.id
+            ).length===0
+        ){
+            return res.status(400).json({msg:'Post has not yet been liked.'})
+        }
+
+        const removeIndex=post.likes.map(like=>like.user.toString()).indexOf(req.user.id)
+        post.likes.splice(removeIndex,1)
+        await post.save();
+
+        res.json(post.likes)
+        
+    } catch (err) {
+        console.error(err.message);
+
+        if(err.kind==='ObjectId'){
+            return res.status(404).json({msg:'Post not found'})
+        }
+        res.status(500).send('Server error.')
+    }
+});
 
 module.exports = router;
