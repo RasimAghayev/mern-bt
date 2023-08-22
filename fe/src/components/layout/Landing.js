@@ -1,5 +1,5 @@
-import React from 'react'
-import {Link} from 'react-router-dom'
+import React from "react";
+import { Link } from "react-router-dom";
 
 const Landing = () => {
   return (
@@ -12,13 +12,17 @@ const Landing = () => {
             other developers
           </p>
           <div className="buttons">
-            <Link to="/register" className="btn btn-primary">Sign Up</Link>
-            <Link to="/login" className="btn btn-light">Login</Link>
+            <Link to="/register" className="btn btn-primary">
+              Sign Up
+            </Link>
+            <Link to="/login" className="btn btn-light">
+              Login
+            </Link>
           </div>
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default Landing
+export default Landing;

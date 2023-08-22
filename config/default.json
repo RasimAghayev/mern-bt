@@ -1,6 +1,6 @@
 {
-    "mongoURI": "mongodb+srv://mern:GGBqOSLUIsIagIup@cluster0.mgdzi4r.mongodb.net/?retryWrites=true&w=majority",
-    "jwtSecretKey": "RasimAghayev!@#(*&!@_(*#&)(*",
-    "gitClientId":"4886cfdba8da9700be35",
-    "gitCleantSecret":"649bc393d9111b2a576e9ea5bbdacca86e781f5f"
+  "mongoURI": "mongodb+srv://mern:GGBqOSLUIsIagIup@cluster0.mgdzi4r.mongodb.net/?retryWrites=true&w=majority",
+  "jwtSecretKey": "RasimAghayev!@#(*&!@_(*#&)(*",
+  "gitClientId": "4886cfdba8da9700be35",
+  "gitCleantSecret": "649bc393d9111b2a576e9ea5bbdacca86e781f5f"
 }

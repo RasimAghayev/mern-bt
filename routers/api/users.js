@@ -1,26 +1,26 @@
-const express = require('express');
-const gravatar = require('gravatar');
-const bcrypt = require('bcryptjs');
-const config = require('config');
-const jwt = require('jsonwebtoken');
-const { check, validationResult } = require('express-validator');
+const express = require("express");
+const gravatar = require("gravatar");
+const bcrypt = require("bcryptjs");
+const config = require("config");
+const jwt = require("jsonwebtoken");
+const { check, validationResult } = require("express-validator");
 
 const router = express.Router();
 
-const User = require('../../models/User');
+const User = require("../../models/User");
 
 // @router  POST     api/users
 // @desc    Register new user
 // @access  Public
 
 router.post(
-  '/',
+  "/",
   [
-    check('name', 'Name is required').not().isEmpty(),
-    check('email', 'Please include a valid email').isEmail(),
+    check("name", "Name is required").not().isEmpty(),
+    check("email", "Please include a valid email").isEmail(),
     check(
-      'password',
-      'Please enter a password with 6 or more characters'
+      "password",
+      "Please enter a password with 6 or more characters"
     ).isLength({ min: 6 }),
   ],
   async (req, res) => {
@@ -38,14 +38,14 @@ router.post(
       if (user) {
         return res
           .status(400)
-          .json({ errors: [{ msg: 'User already exists.' }] });
+          .json({ errors: [{ msg: "User already exists." }] });
       }
 
       // Get users gravatar
       const avatar = gravatar.url(email, {
-        s: '200',
-        r: 'pg',
-        d: 'mm',
+        s: "200",
+        r: "pg",
+        d: "mm",
       });
 
       user = new User({
@@ -70,7 +70,7 @@ router.post(
 
       jwt.sign(
         payload,
-        config.get('jwtSecretKey'),
+        config.get("jwtSecretKey"),
         { expiresIn: 360000 },
         (err, token) => {
           if (err) throw err;
@@ -79,7 +79,7 @@ router.post(
       );
     } catch (err) {
       console.log(err.message);
-      return res.status(500).json({ errors: [{ msg: 'Server error' }] });
+      return res.status(500).json({ errors: [{ msg: "Server error" }] });
     }
   }
 );
@@ -88,6 +88,6 @@ router.post(
 // @desc    Test    route
 // @access  Public
 
-router.get('/', (req, res) => res.send('Users route.'));
+router.get("/", (req, res) => res.send("Users route."));
 
 module.exports = router;
