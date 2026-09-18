@@ -1,4 +1,4 @@
 {
-    "mongoURI": "mongodb+srv://mern:GGBqOSLUIsIagIup@cluster0.mgdzi4r.mongodb.net/?retryWrites=true&w=majority",
-    "jwtSecretKey": "RasimAghayev!@#(*&!@_(*#&)(*"
+    "mongoURI": "mongodb+srv://<username>:<password>@<cluster-host>/?retryWrites=true&w=majority",
+    "jwtSecretKey": "<replace-with-a-strong-random-secret>"
 }
