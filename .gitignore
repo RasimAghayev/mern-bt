@@ -1,2 +1,19 @@
 node_modules/
+coverage/
+.nyc_output/
+tmp/
+logs/
+*.log
+npm-debug.log*
+
+# Local configuration overrides of the `config` package. They can hold
+# credentials, so they never belong in the repository.
 config/local.json
+config/production.json
+
+# Environment files. `.env.example` is the tracked template.
+.env
+.env.*
+!.env.example
+
+.DS_Store
