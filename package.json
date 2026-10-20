@@ -20,12 +20,12 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "config": "^3.3.9",
+    "dotenv": "^16.6.1",
     "express": "^4.18.2",
     "express-validator": "^7.0.1",
     "gravatar": "^1.8.2",
     "jsonwebtoken": "^9.0.1",
-    "mongoose": "^7.5.0",
-    "request": "^2.88.2"
+    "mongoose": "^7.5.0"
   },
   "devDependencies": {
     "concurrently": "^8.2.0",
