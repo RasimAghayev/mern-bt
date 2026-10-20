@@ -13,10 +13,6 @@ const SKIPPED_DIRECTORIES = new Set([
 ]);
 const SKIPPED_FILES = new Set(['package-lock.json']);
 
-// Files that carry a synthetic credential on purpose, so the redaction of a
-// connection string can be proved.
-const ALLOWED_FIXTURES = new Set(['test/config-secrets.test.js']);
-
 // A connection string that carries a user name and a password.
 const URI_WITH_CREDENTIALS = /:\/\/[^/\s"']+:[^/\s"']+@/;
 // A connection string of any kind inside a committed file.
@@ -53,8 +49,6 @@ test('no committed file carries a connection string with credentials', () => {
 
   for (const file of files) {
     const relative = path.relative(ROOT, file).split(path.sep).join('/');
-
-    if (ALLOWED_FIXTURES.has(relative)) continue;
 
     const content = fs.readFileSync(file, 'utf8');
 
