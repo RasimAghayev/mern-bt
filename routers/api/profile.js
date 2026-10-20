@@ -8,6 +8,9 @@ const auth = require('../../middleware/auth');
 const Profile = require('../../models/Profile');
 const User = require('../../models/User');
 
+// Utils
+const { parsePagination } = require('../../utils/pagination');
+
 // Router
 const router = express.Router();
 
@@ -123,7 +126,11 @@ router.post(
 
 router.get('/', async (req, res) => {
   try {
-    const profiles = await Profile.find().populate('user', ['name', 'avatar']);
+    const { limit, skip } = parsePagination(req.query);
+    const profiles = await Profile.find()
+      .populate('user', ['name', 'avatar'])
+      .skip(skip)
+      .limit(limit);
     if (!profiles) return res.status(400).json({ msg: 'There is no profiles' });
 
     res.json(profiles);
@@ -229,16 +236,24 @@ router.delete('/experience/:exp_id', auth, async (req, res) => {
   try {
     const profile = await Profile.findOne({ user: req.user.id });
 
+    if (!profile) {
+      return res.status(404).json({ msg: 'There is no profile for this user.' });
+    }
+
     // Get remove Index
     const removeIndex = profile.experience
       .map((item) => item.id)
       .indexOf(req.params.exp_id);
 
+    if (removeIndex === -1) {
+      return res.status(404).json({ msg: 'Experience not found.' });
+    }
+
     profile.experience.splice(removeIndex, 1);
 
     await profile.save();
 
-    res.json({ msg: 'User deleted.' });
+    res.json({ msg: 'Experience deleted.' });
   } catch (err) {
     console.log(err.message);
     if (err.kind == 'ObjectId') {
@@ -304,16 +319,24 @@ router.delete('/education/:edu_id', auth, async (req, res) => {
   try {
     const profile = await Profile.findOne({ user: req.user.id });
 
+    if (!profile) {
+      return res.status(404).json({ msg: 'There is no profile for this user.' });
+    }
+
     // Get remove Index
     const removeIndex = profile.education
       .map((item) => item.id)
       .indexOf(req.params.edu_id);
 
+    if (removeIndex === -1) {
+      return res.status(404).json({ msg: 'Education not found.' });
+    }
+
     profile.education.splice(removeIndex, 1);
 
     await profile.save();
 
-    res.json({ msg: 'User deleted.' });
+    res.json({ msg: 'Education deleted.' });
   } catch (err) {
     console.log(err.message);
     if (err.kind == 'ObjectId') {
