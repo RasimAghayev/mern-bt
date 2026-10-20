@@ -6,9 +6,6 @@ React/Redux client. The repository's own `package.json` description names
 the course directly; this README documents what the **default branch
 (`master`)** actually contains, since that's what a visitor sees first.
 
-No source files were changed to produce this README beyond the security
-fix noted under "Known limitations."
-
 ## What's actually on `master`
 
 `master` is **backend-only** — there is no `client/`, `fe/`, or any React
@@ -17,31 +14,80 @@ about a full MERN app with a React/Redux frontend.
 
 | Path | Purpose |
 |---|---|
-| `server.js` | Express app entry point; mounts four API routers, connects to MongoDB on boot. |
-| `config/db.js`, `config/default.json` | Mongoose connection + JWT secret, loaded via the `config` npm package. |
+| `server.js` | Express app entry point; loads the environment, checks the configuration, mounts four API routers, connects to MongoDB on boot. |
+| `config/db.js` | Mongoose connection. |
+| `config/default.json` | Declares the configuration keys. Holds no credential. |
+| `config/custom-environment-variables.json` | Maps `mongoURI` to `MONGODB_URI` and `jwtSecretKey` to `JWT_SECRET`. |
+| `config/secrets.js` | Reads the two secrets, refuses to start a production run without them, and redacts connection strings before they are logged. |
 | `middleware/auth.js` | Verifies a JWT passed in the `x-api-token` header. |
 | `models/User.js`, `models/Profile.js` | Mongoose schemas — `User` (name/email/password/avatar) and `Profile` (company/skills/experience/education/social links). |
 | `routers/api/users.js` | `POST /api/users` — register a user (bcrypt-hashed password, Gravatar avatar, returns a JWT). |
 | `routers/api/auth.js` | `GET /api/auth` (current user, JWT-protected), `POST /api/auth` (login, returns a JWT). |
-| `routers/api/profile.js` | Full CRUD for the current user's profile, plus experience/education sub-resources (`PUT`/`DELETE`) and public profile lookups. |
-| `routers/api/posts.js` | **Stub only** — `GET /` returns the literal string `"Posts route."`. No create/list/delete, and there's no `models/Post.js` on this branch. |
+| `routers/api/profile.js` | Profile CRUD for the current user, plus experience/education sub-resources (`PUT`/`DELETE`) and public profile lookups. |
+| `routers/api/posts.js` | **Stub only** — `GET /` returns the literal string `"Posts route."`. No create/list/delete, and there is no `models/Post.js` on this branch. |
+| `test/` | The test suite, run by the built-in Node test runner. |
 | `command.txt` | Scratch notes of the `npm install`/`npm audit` commands run while building the project — not a script. |
 
-`npm test` is the CRA/Express default placeholder (`echo "Error: no test
-specified" && exit 1`) — there is no real test suite.
+## Setup
+
+Node.js 18 or newer and a MongoDB server are required.
+
+```bash
+npm ci
+cp .env.example .env     # then fill in MONGODB_URI and JWT_SECRET
+npm run server           # nodemon, http://localhost:5000
+```
+
+`npm start` runs the same server without the file watcher.
+
+### Configuration
+
+| Variable | Read at | Purpose |
+|---|---|---|
+| `MONGODB_URI` | `config/secrets.js:38` | MongoDB connection string. |
+| `JWT_SECRET` | `config/secrets.js:64` | Secret used to sign and verify JSON Web Tokens. |
+| `PORT` | `server.js:33` | Port the HTTP server listens on. Defaults to `5000`. |
+| `NODE_ENV` | `config/secrets.js:30` | Set to `production` to make the server require the two values above. |
+
+The values are read from the environment, which the `config` package maps
+onto the configuration keys through `config/custom-environment-variables.json`.
+A `.env` file in the project root is loaded at start-up. The same values can
+be placed in `config/local.json` or `config/production.json` instead — all
+three locations are ignored by git, and the environment wins over the files.
+
+**Never commit a credential.** `config/default.json` deliberately holds no
+connection string and no signing secret, `.env` and the `config/local.json`
+and `config/production.json` overrides are ignored, and `.env.example`
+carries placeholders only. A test in `test/no-committed-credentials.test.js`
+fails the build if a committed file carries a connection string with a user
+name and a password.
+
+When `NODE_ENV=production` the server refuses to start if `MONGODB_URI` or
+`JWT_SECRET` is missing or still holds a placeholder value; it exits with a
+message naming the variable. In development both fall back to safe values:
+a local MongoDB without a user name, and a random secret that is regenerated
+on every restart.
+
+## Tests
+
+```bash
+npm test
+```
+
+The suite runs on the Node test runner and covers the token verification
+rules, the protection of the mutating profile routes, the bounded profile
+listing, the configuration rules described above, and a scan of the committed
+files for credentials. It needs no database and no network access.
+
+The `install and test` workflow in `.github/workflows/ci.yml` runs the same
+command on every push and pull request.
 
 ## Branches: the React/Redux frontend exists, but not here
 
-`master`'s tip (`081c4b0`) is a Renovate dependency-bump merge from
-2023-11-03 — a later push date than any other branch, which could read as
-"most current." It isn't. `git merge-base` shows `master` shares history
-with `Section-1`/`Section-2`/`Section-3` (the early backend lessons: auth,
-users, profiles) but was never merged forward from `Section-5` onward —
-its merge-base with `Section-9` is `Section-1`'s own tip commit
-(`059cc15`). Everything `master` gained after that point is Renovate PRs
-(`#2`–`#9`, dependency bumps only); no application commits.
-
-The actual course progression continued on unmerged branches:
+`master` follows the course's dependency-bump line: the course work on it
+ends at `081c4b0` and only holds Renovate dependency bumps after that. The
+course itself continued on branches that were never merged forward, so
+`master` is not the most advanced state of the project.
 
 - **`Section-5`** adds `models/Post.js` and real create/list/comment/like
   routes to `routers/api/posts.js` (vs. `master`'s stub).
@@ -51,44 +97,41 @@ The actual course progression continued on unmerged branches:
   plus a static `devconnector_html_theme/` reference theme. `Section-9` is
   the most advanced state found.
 
-None of `Section-5`–`Section-9` are merged into `master` (confirmed via
-`git merge-base --is-ancestor`, all `NO`). A visitor to the repo's default
-branch sees a backend-only stub of the project the description advertises.
+The published branches `Section-5` to `Section-9` share history with
+`master` up to `059cc15` ("22. Add & Delete Profile Education"); none of
+them is merged into `master` (confirmed with `git merge-base --is-ancestor`).
+A visitor to the repo's default branch sees a backend-only stub of the
+project the description advertises.
 
-## Known limitations (disclosed, and one fixed)
+## Known limitations
 
-- **Fixed in this pass — exposed live credentials.** `config/default.json`
-  was tracked in git (`.gitignore` only excluded `node_modules/`) and
-  contained a real-looking MongoDB Atlas connection string with an
-  embedded username/password, plus a JWT signing secret, committed since
-  this repo's initial commit and pushed to a public GitHub repo. Both
-  values have been replaced with placeholders in this commit, and
-  `config/local.json` (the `config` package's convention for
-  gitignored local overrides) has been added to `.gitignore` so a real
-  config can be supplied locally without being committed. **This does not
-  undo the exposure**: the original credentials remain visible in every
-  prior commit in this repo's git history and must be treated as already
-  compromised. Rotating the MongoDB Atlas database user's password and
-  regenerating the JWT secret is a separate action only the account owner
-  can take, and purging the old values from git history (e.g. via
-  `git filter-repo` or BFG, which requires a force-push) is a separate,
-  more disruptive decision — neither was done as part of this
-  documentation pass.
-- **The `posts` feature doesn't exist on `master`** — see "Branches"
-  above; it's a stub pending a merge that never happened.
+- **The `posts` feature does not exist on `master`** — see "Branches"
+  above; it is a stub pending a merge that never happened.
 - **No `client`/`fe` React app on `master`** despite the repo/course
   description — see "Branches."
-- **No automated tests.**
 - **No `LICENSE` file.**
+- **Credentials that were committed in the past are still in the git
+  history.** An earlier version of this repository kept a MongoDB
+  connection string with an embedded user name and password, a JSON Web
+  Token signing secret, and a GitHub OAuth client id and secret in
+  `config/default.json`. The values were removed from the working tree, but
+  they remain readable in the older commits and in the published
+  `Section-5` to `Section-9` branches. Treat them as compromised: rotate
+  the database password, the token signing secret, and the GitHub OAuth
+  client secret, and use the environment variables described above from now
+  on. Removing the old values from the history needs a history rewrite and
+  a force push, which is a decision for the repository owner.
 
-## Setup
+## Security notes
 
-```bash
-npm install
-cp config/default.json config/local.json   # then fill in real values
-npm run server                              # nodemon, http://localhost:5000
-```
-
-`config/local.json` is gitignored and overrides `config/default.json` via
-the `config` package — set a real `mongoURI` and `jwtSecretKey` there,
-never in `default.json`.
+- Tokens are signed and verified with `HS256` only; a token that asks for a
+  different algorithm is rejected.
+- Every mutating profile route requires a valid token, including the
+  deletion of the account.
+- A password is never part of a response: the current-user route selects
+  every field except `password`, and the populated user documents are
+  limited to `name` and `avatar`.
+- The profile listing is bounded to 100 entries per request and accepts
+  `?page=` and `?limit=`.
+- A connection string is redacted before a database error is written to the
+  log.
