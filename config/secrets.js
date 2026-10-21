@@ -3,7 +3,7 @@ const config = require('config');
 
 // Development fallback database. It carries no user information, so it is
 // not a credential and cannot be mistaken for one.
-const DEV_MONGO_URI = 'mongodb://127.0.0.1:27017/mern-bt';
+const DEV_MONGO_URI = 'mongodb://127.0.0.1:27017/social-network-api';
 
 // Configuration keys that hold a secret and the environment variable that
 // supplies them. The mapping itself lives in custom-environment-variables.json

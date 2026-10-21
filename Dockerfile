@@ -1,4 +1,4 @@
-# Application image for mern-bt.
+# Application image for social-network-api.
 #
 # The image carries the source, so the container needs no bind mount of the
 # repository. Every bind mount of the compose stack lives under var/ (R92).

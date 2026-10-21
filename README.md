@@ -1,4 +1,4 @@
-# mern-bt
+# social-network-api
 
 A personal follow-along of Brad Traversy's **"MERN Stack Front To Back"**
 course — building a social-network REST API (Node/Express/MongoDB) with a

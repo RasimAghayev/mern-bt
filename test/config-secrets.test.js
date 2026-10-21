@@ -63,7 +63,7 @@ test('the startup check reports the missing value', () => {
 
 test('a development run falls back to the local database', () => {
   withNodeEnv('development', () => {
-    assert.strictEqual(getMongoUri(), 'mongodb://127.0.0.1:27017/mern-bt');
+    assert.strictEqual(getMongoUri(), 'mongodb://127.0.0.1:27017/social-network-api');
   });
 });
 
