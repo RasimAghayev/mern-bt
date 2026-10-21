@@ -26,28 +26,57 @@ about a full MERN app with a React/Redux frontend.
 | `routers/api/profile.js` | Profile CRUD for the current user, plus experience/education sub-resources (`PUT`/`DELETE`) and public profile lookups. |
 | `routers/api/posts.js` | **Stub only** — `GET /` returns the literal string `"Posts route."`. No create/list/delete, and there is no `models/Post.js` on this branch. |
 | `test/` | The test suite, run by the built-in Node test runner. |
+| `eslint.config.js` | The lint rules for the application code and the test suite. |
+| `Dockerfile` | Three stages: the dependencies, the test image and the runtime image. |
+| `mongodb.dockerfile` | The MongoDB image of the compose stack. |
+| `docker-compose.yml` | The stack: `app`, `mongo`, and the `test` and `lint` services of the test profile. |
 | `command.txt` | Scratch notes of the `npm install`/`npm audit` commands run while building the project — not a script. |
 
 ## Setup
 
-Node.js 18 or newer and a MongoDB server are required.
+The project runs in Docker. Node.js and a MongoDB server do not have to be
+installed on the machine.
+
+**1. Create the local environment file.** Every bind mount of the compose
+stack lives under `var/` (R92), and the stack reads the environment from
+`var/.env`.
 
 ```bash
-npm ci
-cp .env.example .env     # then fill in MONGODB_URI and JWT_SECRET
-npm run server           # nodemon, http://localhost:5000
+mkdir -p var
+cp .env.example var/.env
 ```
 
-`npm start` runs the same server without the file watcher.
+**2. Build the images.**
+
+```bash
+docker compose build
+```
+
+**3. Start the stack.** The `app` service waits until `mongo` reports itself
+healthy.
+
+```bash
+docker compose up -d
+```
+
+**4. Check it.**
+
+```bash
+docker compose ps
+curl http://localhost:5000/
+```
+
+The application listens on `5000` by default. `APP_PORT` in `var/.env` moves it
+to another host port.
 
 ### Configuration
 
 | Variable | Read at | Purpose |
 |---|---|---|
-| `MONGODB_URI` | `config/secrets.js:38` | MongoDB connection string. |
+| `MONGODB_URI` | `config/secrets.js:38` | MongoDB connection string. The `app` service sets it to the `mongo` service of the compose network. |
 | `JWT_SECRET` | `config/secrets.js:64` | Secret used to sign and verify JSON Web Tokens. |
 | `PORT` | `server.js:33` | Port the HTTP server listens on. Defaults to `5000`. |
-| `NODE_ENV` | `config/secrets.js:30` | Set to `production` to make the server require the two values above. |
+| `NODE_ENV` | `config/secrets.js:30` | Set to `production` to make the server require the two values above. The `app` service sets it to `production`. |
 
 The values are read from the environment, which the `config` package maps
 onto the configuration keys through `config/custom-environment-variables.json`.
@@ -70,8 +99,12 @@ on every restart.
 
 ## Tests
 
+Both gates run inside the project's own Docker images. Nothing has to be
+installed on the machine.
+
 ```bash
-npm test
+docker compose --profile test run --rm test   # node --test
+docker compose --profile test run --rm lint   # eslint
 ```
 
 The suite runs on the Node test runner and covers the token verification
@@ -79,8 +112,47 @@ rules, the protection of the mutating profile routes, the bounded profile
 listing, the configuration rules described above, and a scan of the committed
 files for credentials. It needs no database and no network access.
 
-The `install and test` workflow in `.github/workflows/ci.yml` runs the same
-command on every push and pull request.
+The `test` service deliberately reads no environment file. The suite asserts
+that a missing secret is refused, and the values of the local machine would
+answer that assertion before the test could.
+
+### Lint
+
+`npm run lint` runs ESLint over the application code and the test suite. The
+rule set covers the mistakes that change behaviour — undefined and unused
+identifiers, `==` against `===`, `var` and `let` where `const` is meant — and
+not the formatting. The configuration is `eslint.config.js` at the root.
+
+### Dependency audit
+
+```bash
+docker compose --profile test run --rm --entrypoint npm test audit --audit-level=high
+```
+
+The audit covers the whole lock file, development dependencies included.
+There is no advisory at the moment.
+
+## CI/CD
+
+`.github/workflows/ci.yml` runs the same gates on every push and every pull
+request:
+
+| Step | Command | Gate |
+|---|---|---|
+| Build the test image | `docker compose build test` | ✅ |
+| Test suite | `docker compose --profile test run --rm test` | ✅ |
+| Linter | `docker compose --profile test run --rm lint` | ✅ |
+| Dependency audit | `npm audit --audit-level=high` | ✅ |
+| Build the runtime image | `docker compose build app` | ✅ |
+
+The runner needs a Docker daemon and nothing else — no Node.js toolchain is
+installed on it. The workflow reads the repository only, never prints a
+secret and never publishes anything, and `actions/checkout` is pinned to a
+commit hash so the tag cannot move under the pipeline.
+
+Two permanent branches exist: `master` (the released state) and `test` (the
+integration state). A change is delivered as a pull request from a
+`feature/*` branch into `test`, and from `test` into `master`.
 
 ## Branches: the React/Redux frontend exists, but not here
 
@@ -121,6 +193,13 @@ project the description advertises.
   client secret, and use the environment variables described above from now
   on. Removing the old values from the history needs a history rewrite and
   a force push, which is a decision for the repository owner.
+- **The source is not mounted into the container.** The images carry the
+  code, so a change to a file needs a rebuild. A watch mode for the local
+  loop is `npm run server` (`node --watch server.js`) outside Docker.
+- **The `mongo` service of the stack has no authentication.** The database
+  is reachable only from the compose network, and the development connection
+  string carries no user name. A deployment that exposes the database needs
+  credentials and a replica set.
 
 ## Security notes
 
