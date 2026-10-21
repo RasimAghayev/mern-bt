@@ -17,3 +17,7 @@ config/production.json
 !.env.example
 
 .DS_Store
+
+# Runtime state of the compose stack (R92). The local environment file and
+# the database data live here.
+var/
