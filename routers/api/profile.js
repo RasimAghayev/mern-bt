@@ -155,7 +155,7 @@ router.get('/user/:user_id', async (req, res) => {
     res.json(profile);
   } catch (err) {
     console.log(err.message);
-    if (err.kind == 'ObjectId') {
+    if (err.kind === 'ObjectId') {
       return res.status(400).json({ msg: 'Invalid User Id' });
     }
     res.status(500).send('Server error');
@@ -174,7 +174,7 @@ router.delete('/', auth, async (req, res) => {
     res.json({ msg: 'User deleted.' });
   } catch (err) {
     console.log(err.message);
-    if (err.kind == 'ObjectId') {
+    if (err.kind === 'ObjectId') {
       return res.status(400).json({ msg: 'Invalid User Id' });
     }
     res.status(500).send('Server error');
@@ -256,7 +256,7 @@ router.delete('/experience/:exp_id', auth, async (req, res) => {
     res.json({ msg: 'Experience deleted.' });
   } catch (err) {
     console.log(err.message);
-    if (err.kind == 'ObjectId') {
+    if (err.kind === 'ObjectId') {
       return res.status(400).json({ msg: 'Invalid User Id' });
     }
     res.status(500).send('Server error');
@@ -339,7 +339,7 @@ router.delete('/education/:edu_id', auth, async (req, res) => {
     res.json({ msg: 'Education deleted.' });
   } catch (err) {
     console.log(err.message);
-    if (err.kind == 'ObjectId') {
+    if (err.kind === 'ObjectId') {
       return res.status(400).json({ msg: 'Invalid User Id' });
     }
     res.status(500).send('Server error');
