@@ -1,4 +1,4 @@
-# MongoDB image for the compose stack of mern-bt.
+# MongoDB image for the compose stack of social-network-api.
 #
 # The service builds from this file instead of pointing at a registry image
 # (R91). The base image is pinned by digest.
