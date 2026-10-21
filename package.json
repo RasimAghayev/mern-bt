@@ -4,9 +4,10 @@
   "description": "Brad Traversy - MERN Stack Front To Back. Build and deploy a social network with Node.js, Express, React, Redux & MongoDB. ",
   "main": "server.js",
   "scripts": {
-    "start": "node server",
-    "server": "nodemon server",
-    "test": "node --test"
+    "start": "node server.js",
+    "server": "node --watch server.js",
+    "test": "node --test",
+    "lint": "eslint ."
   },
   "keywords": [
     "MERN",
@@ -28,7 +29,6 @@
     "mongoose": "^7.5.0"
   },
   "devDependencies": {
-    "concurrently": "^8.2.0",
-    "nodemon": "^3.0.1"
+    "eslint": "^9.0.0"
   }
 }
