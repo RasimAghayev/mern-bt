@@ -1,4 +1,4 @@
 {
-    "mongoURI": "mongodb+srv://<username>:<password>@<cluster-host>/?retryWrites=true&w=majority",
-    "jwtSecretKey": "<replace-with-a-strong-random-secret>"
+    "mongoURI": "",
+    "jwtSecretKey": ""
 }
